@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="EEGSeizGuard 本地脑电研究工作台：Welch 频段特征、逻辑回归与可复核的预测效果分析。">
+  <meta name="color-scheme" content="light">
+  <title>EEGSeizGuard · 脑电研究工作台</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/brain-network.css">
+  <script src="/app.js" defer></script>
+  <script type="module" src="/brain-network.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">跳到主内容</a>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="工作台导航">
+      <a class="brand" href="#overview" aria-label="EEGSeizGuard 工作台首页">
+        <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M3 17h6l3-8 5 16 4-11 3 3h5"/></svg></span>
+        <span><strong>EEGSeizGuard</strong><small>头皮脑电癫痫发作预测软件</small></span>
+      </a>
+      <div class="nav-label">研究工作台 <span class="version">V1.0</span></div>
+      <nav class="nav-list">
+        <button class="nav-item active" type="button" data-view="overview" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/></svg><span>工作概览</span></button>
+        <button class="nav-item network-nav" type="button" data-view="network"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 2-5 11L6 6l-3 9 10 4M6 6l7 13M3 15l15-7"/><circle cx="6" cy="6" r="2"/><circle cx="18" cy="8" r="2"/><circle cx="13" cy="19" r="2"/><circle cx="3" cy="15" r="2"/></svg><span>三维脑网络</span><span class="nav-new">3D</span></button>
+        <button class="nav-item" type="button" data-view="prepare"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h7l2 3h9v11H3zM3 6V4h7l2 2h9v3"/></svg><span>数据准备</span></button>
+        <button class="nav-item" type="button" data-view="train"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10H7zM9 3v4m6-4v4M9 17v4m6-4v4M3 9h4m-4 6h4m10-6h4m-4 6h4"/></svg><span>模型训练</span></button>
+        <button class="nav-item" type="button" data-view="predict"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg><span>风险预测</span></button>
+        <button class="nav-item" type="button" data-view="evaluate"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 3v17h17M8 16v-5m5 5V7m5 9V4"/></svg><span>效果分析</span></button>
+        <button class="nav-item" type="button" data-view="jobs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v15H4zM8 2v6m8-6v6M8 12h8m-8 4h5"/></svg><span>任务记录</span><span class="nav-count" id="job-count">0</span></button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="local-pill"><span class="status-dot" id="sidebar-status-dot"></span><span id="sidebar-status">正在连接本地服务</span></div>
+        <p>文件在本机处理<br>单一算法 · 可追溯输出</p>
+        <div class="sidebar-notice">用于研究与基线能力验证<br>预测结果不用于临床决策</div>
+      </div>
+    </aside>
+
+    <div class="workspace">
+      <header class="topbar">
+        <div><span class="breadcrumb">EEGSeizGuard</span><span class="breadcrumb-divider">/</span><span id="current-view-name">工作概览</span></div>
+        <div class="topbar-actions"><span class="topbar-local"><span class="status-dot" id="topbar-status-dot"></span><span id="topbar-status">连接中</span></span><span class="protocol-pill">RESEARCH EDITION · V1.0</span><button class="button button-small button-ghost" type="button" id="refresh-button" aria-label="重新连接并刷新任务">刷新</button></div>
+      </header>
+
+      <main id="main-content" tabindex="-1">
+        <div class="connection-alert" id="connection-alert" role="status" hidden></div>
+        <section class="view" id="view-overview" aria-labelledby="overview-title">
+          <div class="page-heading"><div><div class="eyebrow">LOCAL EEG RESEARCH WORKSPACE</div><h1 id="overview-title">脑电信号到网络连接，完整可见。</h1><p>在同一工作台探索导联连接、运行风险模型，并追溯每一次分析。</p></div><span class="workspace-badge"><span class="status-dot connected"></span>本地工作台</span></div>
+          <div class="hero-card">
+            <div class="hero-copy"><span class="tag tag-on-dark">信号 · 频谱 · 网络 · 预测</span><h2>从一段信号，<br>看见连接的形成过程。</h2><p>在三维空间探索双极导联间的相干性，联动查看矩阵、波形和频段功率；再沿独立的预测流程验证模型表现。</p><div class="hero-actions"><button class="button button-mint" type="button" data-go="network">探索三维脑网络 <span aria-hidden="true">↗</span></button><button class="button button-on-dark run-button" type="button" id="demo-button">运行预测演示</button></div><small>演示数据明确标记。真实分析从本机 EDF 或数据清单开始。</small></div>
+            <div class="hero-visual" aria-label="脑电处理流程示意">
+              <div class="visual-top"><span>处理流程示意</span><span class="visual-signal">18 CHANNELS</span></div>
+              <svg class="signal-art" viewBox="0 0 360 150" aria-hidden="true"><defs><pattern id="signal-grid" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M30 0H0V30" fill="none" stroke="#ffffff" stroke-opacity=".06"/></pattern></defs><rect width="360" height="150" fill="url(#signal-grid)"/><path d="M0 34h13l7 4 8-9 5 9 8-5 6 7 8-13 5 8h13l7 7 5-17 8 12 9-4 7 2 6-4 6 7 6-3 7 2 7-6 8 7 7-2 6 2 7-12 8 17 7-7 8 3 8-9 6 5 7-2 7 4 6-7 9 8 8-2 6-6 7 5 7-1 6 2 8-4h14l6 6 5-5 7 1h14"/><path d="M0 77h16l5-7 8 9 6-5 6 3 8-7 6 7h11l8 4 7-9 6 5 8-2 8 4 7-8 7 3 7 1 6-6 8 11 7-4 6 2 6-3h14l7 5 7-10 7 6 7-3 6 5 7-7 8 8 6-4h15l6 6 7-12 6 8 8-3 7 5 8-4 7 1 7-3 7 4h25"/><path d="M0 119h11l5 6 8-8 5 8 8-5 6 3h14l5-9 7 15 7-8 8 1 7-3 6 5 8-3h10l6-6 8 11 6-3 7 1 7-6 6 4 8 1 7-3 8 5 7-8 7 4h11l7-4 7 11 8-6 7 1 6-3 7 5h10l8-7 7 6 7-3 8 6 7-9 7 5h32"/></svg>
+              <div class="visual-flow"><span>因果滤波</span><span aria-hidden="true">→</span><span>Welch 频谱</span><span aria-hidden="true">→</span><span class="visual-highlight">相干矩阵</span></div>
+              <div class="visual-footer"><span class="status-dot connected"></span>三维导联网络 · 时间窗回放 · 来源可核对</div>
+            </div>
+          </div>
+          <div class="overview-stats" aria-label="本地任务概况"><article><span>任务总数</span><strong id="overview-total">0</strong><small>当前保留的运行记录</small></article><article><span>已完成任务</span><strong id="overview-completed">0</strong><small id="overview-completed-note">等待首次运行</small></article><article><span>运行状态</span><strong id="overview-active">空闲</strong><small id="overview-active-note">可以开始一项分析</small></article><article><span>最近宏 AUROC</span><strong id="overview-auroc">—</strong><small id="overview-auroc-note">完成效果分析后显示</small></article></div><div class="overview-context" id="overview-context">尚无分析结果。可先探索带来源标识的三维演示，或导入本机数据。</div>
+          <div class="section-heading"><h2>固定处理协议</h2><span>参数与每次任务一同记录</span></div><div class="protocol-grid" aria-label="默认处理协议">
+            <article class="protocol-card"><span>统一双极导联</span><strong>18 <small>路</small></strong><p>对应 90 维频段特征</p></article>
+            <article class="protocol-card"><span>重采样频率</span><strong>128 <small>Hz</small></strong><p>因果滤波与时间连续性检查</p></article>
+            <article class="protocol-card"><span>分析时间窗</span><strong>10 <small>秒</small></strong><p>默认 10 秒步长</p></article>
+            <article class="protocol-card"><span>预测时间协议</span><strong>5 <small>+ </small>30 <small>分钟</small></strong><p>SPH 5 分钟 · SOP 30 分钟</p></article>
+          </div>
+          <div class="section-heading"><h2>从这里开始</h2><span>四个步骤，一个完整闭环</span></div>
+          <div class="workflow-grid">
+            <button class="workflow-card" type="button" data-go="prepare"><span class="step-number">01</span><h3>准备数据 <span aria-hidden="true">↗</span></h3><p>读取清单、解析信号、生成特征和时间标签。</p><span class="card-link">数据清单 → 特征数据集</span></button>
+            <button class="workflow-card" type="button" data-go="train"><span class="step-number">02</span><h3>训练模型 <span aria-hidden="true">↗</span></h3><p>检查患者隔离，拟合训练集，保留独立评估。</p><span class="card-link">数据集 → 逻辑回归模型</span></button>
+            <button class="workflow-card" type="button" data-go="predict"><span class="step-number">03</span><h3>生成预测 <span aria-hidden="true">↗</span></h3><p>加载模型并输出每个时间窗的未校准风险分数。</p><span class="card-link">模型 + 数据 → 评分结果</span></button>
+            <button class="workflow-card" type="button" data-go="evaluate"><span class="step-number">04</span><h3>分析效果 <span aria-hidden="true">↗</span></h3><p>查看患者级和汇总指标，导出可复核报告。</p><span class="card-link">评分结果 → 效果报告</span></button>
+          </div>
+          <div class="history-card"><div class="history-icon" aria-hidden="true">↶</div><div><h3>查看原项目中的真实实验结果</h3><p>单独读取已有报告。历史研究指标会明确标注来源，与本次软件运行区分。</p></div><button class="button button-secondary" type="button" data-go="evaluate">读取历史结果</button></div>
+        </section>
+
+        <section class="view" id="view-network" aria-labelledby="network-title" hidden><div class="page-heading network-page-heading"><div><div class="eyebrow">SIGNAL CONNECTIVITY / 3D EXPLORER</div><h1 id="network-title">三维脑网络实验室</h1><p>沿着信号、频谱、相干矩阵与空间网络，逐步核对连接如何形成。</p></div><span class="workspace-badge">18 双极导联 · 五频段</span></div><div id="network-workspace"></div></section>
+
+        <section class="view" id="view-prepare" aria-labelledby="prepare-title" hidden>
+          <div class="page-heading"><div><div class="eyebrow">STEP 01 / DATA PREPARATION</div><h1 id="prepare-title">准备一份可靠的数据集</h1><p>通过本地数据清单组织信号和发作标注，保留完整的数据来源。</p></div><span class="step-chip">01 / 04</span></div>
+          <div class="form-layout"><form class="panel form-panel" id="prepare-form"><div class="panel-heading"><h2>数据清单</h2><span class="tag">JSON</span></div><p class="form-intro">填写清单文件的本机完整路径。文件格式与示例请参照项目 examples 目录和使用说明。</p><label for="manifest-path">清单文件路径 <span class="required">必填</span></label><input id="manifest-path" name="manifest" type="text" placeholder="G:\软著材料\EEGSeizGuard\examples\manifest.json" autocomplete="off" spellcheck="false" required><p class="field-help">清单需要关联患者、信号文件、发作事件和数据划分。请先核实清单中的路径。</p><div class="form-divider"></div><div class="config-list"><div><span>特征方法</span><strong>Welch 功率谱 · 五频段</strong></div><div><span>频段维度</span><strong>18 导联 × 5 频段</strong></div><div><span>预测定义</span><strong>未来 300–2100 秒内是否发作</strong></div><div><span>未来观察不足</span><strong>标记为未知，不作为阴性</strong></div></div><div class="form-footer"><button class="button button-primary run-button" type="submit">开始准备数据 <span aria-hidden="true">→</span></button><span>结果保存在独立任务目录</span></div></form><aside class="panel guidance-panel"><div class="guidance-symbol" aria-hidden="true">i</div><h2>先确认这三件事</h2><ol class="guidance-list"><li><strong>信号与标注对应</strong><p>发作时间应以对应记录的秒数表示，避免把不同记录的标注混在一起。</p></li><li><strong>患者划分一致</strong><p>同一个患者应只属于一个数据分区。训练、验证和测试分开管理。</p></li><li><strong>时间范围可观察</strong><p>只有完整观察了所需未来区间，才能可靠地确认阴性标签。</p></li></ol><div class="note">首次体验建议先运行「完整演示」，检查软件流程，再导入真实数据。</div></aside></div>
+        </section>
+
+        <section class="view" id="view-train" aria-labelledby="train-title" hidden>
+          <div class="page-heading"><div><div class="eyebrow">STEP 02 / MODEL TRAINING</div><h1 id="train-title">训练一个清晰可解释的基线</h1><p>用 Welch 频段特征和逻辑回归建立发作前期分类模型。</p></div><span class="step-chip">02 / 04</span></div>
+          <div class="form-layout"><form class="panel form-panel" id="train-form"><div class="panel-heading"><h2>训练输入</h2><span class="tag">NPZ</span></div><p class="form-intro">使用数据准备步骤生成的数据集。先完成数据准备后，路径会自动填写。</p><label for="train-dataset-path">特征数据集路径 <span class="required">必填</span></label><input id="train-dataset-path" name="dataset" type="text" placeholder="填写 dataset.npz 的完整路径" autocomplete="off" spellcheck="false" required><p class="field-help">需要包含特征、标签、患者标识及训练/验证/测试分区。</p><div class="form-divider"></div><div class="algorithm-card"><span class="algorithm-mark" aria-hidden="true">σ</span><div><h3>Logistic Regression</h3><p>标准化后的频段特征 → 未校准风险分数</p></div><span class="tag tag-green">单一基线</span></div><div class="config-list"><div><span>未知标签</span><strong>从监督训练和分类指标中排除</strong></div><div><span>数据隔离</span><strong>标准化与模型仅在训练集拟合</strong></div><div><span>输出内容</span><strong>模型、参数记录与效果指标</strong></div></div><div class="form-footer"><button class="button button-primary run-button" type="submit">开始训练 <span aria-hidden="true">→</span></button><span>训练期间可在任务面板取消</span></div></form><aside class="panel guidance-panel"><div class="guidance-symbol" aria-hidden="true">i</div><h2>如何理解训练结果</h2><p>患者级宏平均给每位患者相同权重；合并指标按所有窗口一起计算，两者回答不同的问题。</p><div class="mini-explanation"><strong>AUROC</strong><span>风险分数的排序能力，单类数据无法计算。</span><strong>AP</strong><span>查准率和召回率的综合表现，应结合阳性率判断；单类数据不计算。</span><strong>F1 / 平衡准确率</strong><span>使用指定阈值将风险分数转成类别后计算。</span></div><div class="note">模型输出是研究性的风险评分。训练成功与模型具有临床效用是不同的结论。</div></aside></div>
+        </section>
+
+        <section class="view" id="view-predict" aria-labelledby="predict-title" hidden>
+          <div class="page-heading"><div><div class="eyebrow">STEP 03 / RISK SCORING</div><h1 id="predict-title">查看风险分数随时间的变化</h1><p>加载已保存的模型，为每个输入时间窗生成未校准风险分数。</p></div><span class="step-chip">03 / 04</span></div>
+          <div class="form-layout"><form class="panel form-panel" id="predict-form"><div class="panel-heading"><h2>预测输入</h2><span class="tag">NPZ + JSON</span></div><label for="predict-dataset-path">特征数据集路径 <span class="required">必填</span></label><input id="predict-dataset-path" name="dataset" type="text" placeholder="填写 dataset.npz 的完整路径" autocomplete="off" spellcheck="false" required><p class="field-help">特征顺序和处理协议必须与训练时一致。</p><label for="model-path">模型文件路径 <span class="required">必填</span></label><input id="model-path" name="model" type="text" placeholder="填写 model.json 的完整路径" autocomplete="off" spellcheck="false" required><p class="field-help">模型使用 JSON 参数文件保存，软件会检查模型结构和特征维度。</p><div class="form-divider"></div><div class="config-list"><div><span>风险分数范围</span><strong>0–1</strong></div><div><span>结果格式</span><strong>患者、时间、标签、风险分数</strong></div><div><span>结果保存</span><strong>可下载的 CSV 与预览</strong></div></div><div class="form-footer"><button class="button button-primary run-button" type="submit">生成预测 <span aria-hidden="true">→</span></button><span>原始输入文件不会被覆盖</span></div></form><aside class="panel guidance-panel"><div class="guidance-symbol" aria-hidden="true">i</div><h2>风险评分与发作事件</h2><p>风险分数用于衡量模型对窗口类别的相对判断。模型输出未经校准，不能解释为实际的临床发作概率。</p><div class="prediction-legend"><span class="legend-line"></span><span>窗口风险评分</span><span class="legend-dash"></span><span>分类阈值</span></div><div class="note">绘图仅预览返回的时间点。完整结果请下载 CSV；记录间的空档不应理解为连续观测。</div></aside></div>
+        </section>
+
+        <section class="view" id="view-evaluate" aria-labelledby="evaluate-title" hidden>
+          <div class="page-heading"><div><div class="eyebrow">STEP 04 / PERFORMANCE ANALYSIS</div><h1 id="evaluate-title">让预测效果经得起核对</h1><p>基于保存的评分结果分析表现，或读取原项目的既有研究记录。</p></div><span class="step-chip">04 / 04</span></div>
+          <div class="analysis-form-grid"><form class="panel form-panel" id="evaluate-form"><div class="panel-heading"><h2>分析本次预测结果</h2><span class="tag tag-green">本次任务</span></div><label for="predictions-path">预测结果 CSV 路径 <span class="required">必填</span></label><input id="predictions-path" name="predictions" type="text" placeholder="填写 predictions.csv 的完整路径" autocomplete="off" spellcheck="false" required><p class="field-help">需要患者、真实标签和风险分数；未知标签单独统计。</p><label for="threshold">分类阈值</label><div class="threshold-control"><input id="threshold" name="threshold" type="number" min="0" max="1" step="0.01" value="0.5" required><span>风险分数 ≥ 阈值时判为阳性</span></div><p class="field-help">阈值会影响 F1 和平衡准确率，不改变 AUROC 和 AP。</p><div class="form-footer"><button class="button button-primary run-button" type="submit">计算效果指标 <span aria-hidden="true">→</span></button></div></form><form class="panel form-panel historical-form" id="history-form"><div class="panel-heading"><h2>读取已有研究结果</h2><span class="tag tag-amber">历史结果</span></div><p class="form-intro">读取原 EEG 项目里的已有评估记录，保留来源。该任务不重跑实验，重新核对已有预测的窗口指标。</p><label for="project-path">原项目目录 <span class="required">必填</span></label><input id="project-path" name="project" type="text" value="G:\EEGProject\prediction_restart" autocomplete="off" spellcheck="false" required><p class="field-help">已有实验和本次软件输出独立展示。不会将历史指标归因于新生成的代码。</p><div class="form-footer"><button class="button button-secondary run-button" type="submit">读取历史结果 <span aria-hidden="true">↶</span></button></div></form></div><div class="metric-note"><strong>指标边界</strong><span>这些是窗口级分类指标。事件命中率、误报次数/小时和临床有效性需要额外的事件级协议，不能由窗口指标直接推出。</span></div>
+        </section>
+
+        <section class="view" id="view-jobs" aria-labelledby="jobs-title" hidden>
+          <div class="page-heading"><div><div class="eyebrow">RUN HISTORY / TRACEABILITY</div><h1 id="jobs-title">每一次运行，都保留记录</h1><p>查看任务状态、运行日志和输出文件。选择任务即可查看详细结果。</p></div></div>
+          <div class="panel jobs-panel"><div class="panel-heading"><h2>任务列表</h2><span id="jobs-summary">尚无任务</span></div><div class="jobs-toolbar"><div class="search-field"><label for="job-search">检索任务</label><input id="job-search" type="search" placeholder="任务名称或编号…" autocomplete="off"></div><div><label for="job-status-filter">状态</label><select id="job-status-filter"><option value="all">全部状态</option><option value="running">运行中 / 排队中</option><option value="completed">已完成</option><option value="failed">失败</option><option value="cancelled">已取消</option></select></div><div><label for="job-action-filter">任务类型</label><select id="job-action-filter"><option value="all">全部类型</option><option value="connectivity">三维脑网络</option><option value="prepare">数据准备</option><option value="train">模型训练</option><option value="predict">风险预测</option><option value="evaluate">效果分析</option><option value="history">历史结果</option><option value="demo">合成演示</option></select></div></div><div id="jobs-list" class="jobs-list"><div class="empty-state"><span class="empty-icon" aria-hidden="true">⌁</span><h3>还没有运行记录</h3><p>先从完整演示开始，或导入自己的数据。</p><button class="button button-secondary" type="button" data-go="overview">返回工作概览</button></div></div></div>
+        </section>
+
+        <section class="panel task-panel" id="task-panel" aria-labelledby="task-title" hidden>
+          <div class="panel-heading"><div class="task-heading"><span class="status-dot" id="task-status-dot"></span><h2 id="task-title">当前任务</h2><span class="tag" id="task-status">等待中</span></div><div class="task-actions"><button class="button button-small button-secondary" type="button" id="reuse-output-button" hidden>用于后续步骤</button><button class="button button-small button-ghost" type="button" id="export-result-button" hidden>导出记录</button><button class="button button-small button-danger" type="button" id="cancel-button" hidden>取消任务</button></div></div>
+          <div class="task-meta"><span id="task-id"></span><span class="result-origin" id="result-origin"></span></div>
+          <div class="progress-row" id="progress-row"><progress id="task-progress" value="0" max="100" aria-label="任务进度"></progress><span id="progress-label">0%</span></div>
+          <div class="error-box" id="task-error" role="alert" hidden></div>
+          <div class="result-message" id="result-message" hidden></div>
+          <nav class="result-navigation" id="result-navigation" aria-label="当前任务结果导航" hidden><button type="button" data-result="metrics-panel">指标与患者</button><button type="button" data-result="preview-panel">风险曲线</button><button type="button" data-result="charts-panel">分析图表</button><button type="button" data-result="waveforms-panel">信号波形</button><button type="button" data-result="artifacts-panel">输出文件</button></nav>
+          <div id="metrics-panel" class="metrics-panel" hidden>
+            <div class="section-heading compact"><h3>患者级宏平均</h3><span id="metrics-context"></span></div>
+            <div class="metrics-grid" id="metrics-grid"></div>
+            <div class="metrics-subline" id="metrics-subline"></div>
+            <div class="historical-event-note" id="history-event-note" hidden></div>
+            <div class="patient-toolbar"><div><label for="patient-search">患者检索</label><input type="search" id="patient-search" placeholder="输入患者标识" autocomplete="off"></div><div><label for="patient-sort">排序</label><select id="patient-sort"><option value="patient">患者标识</option><option value="auroc">AUROC 从高到低</option><option value="ap">AP 从高到低</option><option value="n">窗口数从多到少</option></select></div><button class="button button-small button-secondary" type="button" id="export-patients-button">导出患者指标 CSV</button></div><div id="patient-table-count" class="table-count" aria-live="polite"></div><div class="table-scroll" tabindex="0" role="region" aria-label="患者级指标表"><table><thead><tr><th scope="col">患者</th><th scope="col">窗口数</th><th scope="col">阳性数</th><th scope="col">阳性率</th><th scope="col">AUROC</th><th scope="col">AP</th><th scope="col">F1</th><th scope="col">平衡准确率</th></tr></thead><tbody id="patient-table-body"></tbody></table></div>
+          </div>
+          <div class="preview-panel" id="preview-panel" hidden><div class="section-heading compact"><h3>风险分数预览</h3><div class="patient-select"><label for="preview-patient">患者</label><select id="preview-patient"></select><label for="preview-record">记录</label><select id="preview-record"></select><button class="button button-small button-ghost" type="button" id="export-curve-button">保存曲线</button></div></div><div id="probability-chart" class="probability-chart"></div><div class="curve-scrubber"><label for="curve-point">逐点核对</label><input id="curve-point" type="range" min="0" max="0" value="0"><output id="curve-point-value" for="curve-point">选择时间点查看原始分数</output></div><div class="chart-caption" id="chart-caption"></div></div>
+          <div class="charts-panel" id="charts-panel" hidden><div class="section-heading compact"><h3>结果图表</h3><span>图表使用相同评估输出；点击下载原图</span></div><div class="chart-grid" id="chart-grid"></div></div>
+          <div class="waveforms-panel" id="waveforms-panel" hidden><div class="section-heading compact"><h3>输入信号波形</h3><span>因果滤波后信号 · 各导联独立幅度缩放 · 微伏</span></div><div id="waveforms-list" class="waveforms-list"></div></div>
+          <div class="artifacts-panel" id="artifacts-panel" hidden><div class="section-heading compact"><h3>输出文件</h3><span>保存在本机，可直接下载</span></div><div class="artifacts-list" id="artifacts-list"></div></div>
+          <details class="log-details" id="log-details"><summary>运行日志 <span id="log-count">0 条</span></summary><pre id="task-logs" class="log-output" tabindex="0" aria-label="运行日志"></pre></details>
+          <details class="result-details" id="result-details" hidden><summary>查看完整结果记录</summary><pre id="raw-result" tabindex="0"></pre></details>
+        </section>
+        <footer class="footer"><span>EEGSeizGuard V1.0</span><span>研究基线工具 · 本地运行 · 结果可追溯</span></footer>
+      </main>
+    </div>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  <noscript><div class="noscript">需要启用浏览器 JavaScript 才能使用研究工作台。也可使用项目的命令行入口运行各个步骤。</div></noscript>
+</body>
+</html>
