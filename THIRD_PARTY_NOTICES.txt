@@ -1,0 +1,16 @@
+EEGSeizGuard V1.0 — bundled dependency notice
+
+Three.js 0.186.1
+Copyright contributors to Three.js. Licensed under the MIT License.
+The complete license is preserved at web/vendor/LICENSE-three.txt.
+Origin: https://registry.npmjs.org/three/-/three-0.186.1.tgz
+Vendored files: three.module.js, three.core.js, OrbitControls.js.
+Modification: OrbitControls.js import specifier 'three' changed to './three.module.js'
+to support offline loading without an import map.
+tools/vendor_three.py pins and verifies the upstream SHA512 integrity.
+These third-party files are excluded from the original source-program export.
+
+Runtime Python dependencies are installed separately according to requirements.txt.
+Their license notices remain part of their installed distributions.
+Historical model and example EDF manifest reference the user's original research project.
+Raw patient EEG is not bundled in this software archive.

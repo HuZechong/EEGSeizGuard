@@ -1,0 +1,78 @@
+{
+  "software": "EEGSeizGuard",
+  "version": "V1.0",
+  "date": "2026-10-10",
+  "tests": {
+    "passed": 62,
+    "failed": 0,
+    "command": "python -X utf8 -m unittest discover -s tests -v"
+  },
+  "javascript_syntax": "app.js and brain-network.js: passed",
+  "runtime": {
+    "python": "3.12.13 | packaged by conda-forge | (main, Mar  5 2026, 16:36:12) [MSC v.1944 64 bit (AMD64)]",
+    "numpy": "2.4.4",
+    "scipy": "1.17.1",
+    "sklearn": "1.9.0",
+    "matplotlib": "3.11.0",
+    "three": "0.186.1"
+  },
+  "real_edf_network": {
+    "source": {
+      "kind": "edf",
+      "label": "chb03_35.edf",
+      "path": "G:\\EEGProject\\chb-mit-scalp-eeg-database-1.0.0\\chb-mit-scalp-eeg-database-1.0.0\\chb03\\chb03_35.edf",
+      "sha256": "b3eaa6fde574179ee0d61ce524d6ab443b5f540ef7294aff2177df3d58cd97dc",
+      "native_sampling_hz": 256.0,
+      "recording_duration_seconds": 3600.0,
+      "analysis_start_seconds": 30,
+      "analysis_duration_seconds": 120,
+      "annotation_status": "网络分析未读取发作标注，不提供风险标签"
+    },
+    "elapsed_seconds": 0.624,
+    "frames": 12,
+    "channels": 18,
+    "all_matrices_symmetric_bounded_and_waveforms_full_128hz": true,
+    "network_json_bytes": 7097807,
+    "warning_frames": 0,
+    "mode": "独立网络可视化验收；未训练模型或运行研究实验"
+  },
+  "maximum_budget": {
+    "source_kind": "synthetic_demo",
+    "duration_seconds": 600,
+    "frame_count": 60,
+    "network_json_bytes": 35202920,
+    "network_json_mib": 33.572,
+    "under_64_mib": true,
+    "elapsed_seconds": 2.186,
+    "waveform_points_per_channel_per_frame": 1280,
+    "mode": "合成功能演示的最大允许区间验收；不是患者结果",
+    "python": "3.12.13"
+  },
+  "web_job": "5710b2c57b004d58",
+  "browser_checks": [
+    "真实EDF网页提交完成并加载12帧",
+    "刷新后保留真实网络来源，不被演示覆盖",
+    "导联选择、频段、阈值零连接、时窗回放",
+    "18x18矩阵、完整128Hz波形与PSD显示",
+    "二维模式PNG下载并验证1400x1130尺寸",
+    "网络CSV下载并核对4条EDF连接",
+    "任务搜索、患者排序、PNG四图内联加载",
+    "患者CSV、任务JSON与风险SVG下载",
+    "曲线末点标明未知标签且原始分数可核对",
+    "数据和模型成对复用",
+    "390px窄屏无横向溢出并自动适配相机",
+    "浏览器错误日志为空",
+    "三维PNG下载并目视核对元数据与脑网络图像"
+  ],
+  "source_export": {
+    "files": 18,
+    "lines": 3394,
+    "third_party_excluded": true
+  },
+  "limitations": [
+    "仅本机单用户研究软件，未作企业多用户部署验收",
+    "三维外形与导联位置为示意，非患者脑区定位",
+    "未重新训练整个研究队列或启动其他冻结实验",
+    "真实数据一致性验证.json为此前模型与原项目一致性收据，本次未重新执行该1437窗核对"
+  ]
+}

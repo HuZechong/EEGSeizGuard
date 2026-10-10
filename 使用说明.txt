@@ -1,0 +1,137 @@
+头皮脑电癫痫发作预测软件 EEGSeizGuard V1.0
+
+一、启动
+双击本目录的“启动软件.bat”，浏览器将打开中文工作台。
+当前电脑优先使用 E:\anaconda1\envs\pytorch\python.exe；其他电脑使用PATH中的Python。
+程序需要Python及NumPy、SciPy、scikit-learn、Matplotlib。缺依赖时执行“安装依赖.bat”。
+本次验证环境为Windows、Python 3.12.13；具体依赖见验收记录.json与各任务provenance.json。
+关闭启动窗口或按Ctrl+C停止服务。默认端口8765被占用时自动选空闲端口。
+界面只监听127.0.0.1。计算与文件均留在本机，无账号、CDN或上传功能。
+
+二、推荐使用顺序
+1. 点击“开始完整演示”：用7个虚拟对象的合成信号检查训练和评估流程。
+   合成信号特意有频率差异，演示高指标仅表明流程可运行，不是预测有效性证据。
+2. “效果分析”中读取历史结果：默认G:\EEGProject\prediction_restart。
+   读取既有模型预测，重算窗口AUROC/AP并与原报告核对，源文件保持只读。
+3. “数据准备”填写EDF清单路径，再将输出特征包用于训练或预测。
+4. “风险预测”中选择随附examples\historical_model.json与准备好的数据包，
+   可以直接使用原研究已训练的单算法模型。无需PyTorch，也无需重新训练。
+5. 下载模型、预测CSV、指标JSON和文本报告。文件还保存在outputs\任务ID中。
+   取消在EDF处理块或计算步骤结束后生效；逻辑回归拟合期间不能立即中断。
+
+三、EDF清单
+examples\manifest.example.json使用本机已审计的3条真实记录示范数据格式。
+该小清单仅演示软件流程，不能替代原16/3/4患者完整实验。
+source_root是原始文件根目录，records中的path必须位于该目录内。
+每条记录包含path、patient、split、annotations_complete和seizures。
+split仅允许train、validation、test、inference。同患者必须位于一个分区。
+chb01/chb21按同一个人处理。患者身份核实不能仅依靠不同文件名。
+annotations_complete必须是JSON布尔true，须在核对完整标注后使用。
+seizures必须显式填写完整的[[发作开始秒,发作结束秒], ...]。
+空数组代表已核验该EDF无发作，不代表缺少标注。
+时间以本文件开始为0；不同文件不拼接、不推断时间连续性。
+支持经典EDF、18双极导联和128Hz的整数倍输入采样率。
+不支持EDF+、BDF、单极参考推断、非整数倍重采样或缺导联自动补齐。
+超过单条24小时、单记录16MB、数据包50万窗口/600MB预算时会明确报错。
+默认清单路径与标注应在复制到另一台电脑后重新核对。
+
+四、算法与标签
+18导联固定顺序见eegseizguard\config.py。信号单位为微伏。
+因果四阶0.5Hz高通、45Hz低通、60Hz陷波，降采样另加椭圆抗混叠滤波。
+保留跨块滤波状态和抽取相位；不使用双向滤波，不补偿频率相关延迟。
+前30秒用于滤波暖机，10秒尾随窗口和10秒步长，128Hz。
+Welch使用2秒Hann段、50%重叠、constant去趋势与density PSD。
+频段0.5–4/4–8/8–13/13–30/30–45Hz，边界插值后积分，再log10(power+1e-12)。
+特征为18×5=90维，按导联优先排列，训练分区独立拟合归一化。
+逻辑回归C=1、lbfgs、最多1000次迭代；不收敛则失败，不发布该模型为完成结果。
+固定种子；每患者每类最多200窗、阳性事件轮流取样及患者/类别/事件等权。
+简化独立实现未承诺逐次训练参数与原研究完全相同；历史模型为原数值导出。
+分类阈值固定0.5，不根据测试患者调参。
+SPH=300秒、SOP=1800秒。发作onset须在[t+300,t+2100)内。
+正负类共同要求完整未来2100秒。未来不完整、SPH内、发作/发作后期、
+不合格前史事件的窗口标为-1，不改成阴性，也不进入监督训练/效果指标。
+仍为未知窗输出分数。文件起点前病史未知，阴性是录制条件下的未来未见发作。
+
+五、特征包和模型
+特征包为NPZ，allow_pickle=False，包含：
+X(N,90)、y(N)整数-1/0/1、patient/split/record/event字符串数组、
+time_seconds(N)非负秒数、metadata标量JSON字符串。
+metadata.feature_contract必须与本版本feature_contract()完全一致。
+训练需三个分区都有可评价样本，训练分区同时有两类。
+模型为纯数值JSON，包含90维mean/scale/coef、intercept、固定threshold和患者来源。
+不加载pickle、joblib或任意.pt文件。随附历史JSON由原checkpoint以weights_only=True导出。
+模型的元数据不能自行证明外部模型来源真实，使用者仍需核实输入来源。
+
+六、效果分析口径
+输出逐患者等权宏平均和所有窗合并指标，并报告支持数和未知窗排除数。
+AP使用average_precision_score，不是梯形PR面积。缺类患者AUROC/AP为null。
+F1为两类宏平均，balanced accuracy为两类召回率平均；阈值作用于窗分类。
+CSV字段顺序：patient,record,time_seconds,y,probability。
+CSV仅提供描述性评估；不能凭CSV本身证明患者隔离与实验独立性。
+所有分数未经校准，不解释为实际发作概率。不得用窗级AUROC推出事件预警有效性。
+历史原结果：4测试患者宏AUROC=0.56398334，宏AP=0.15503287。
+历史报警策略never_alarm，15个合格事件0命中。零FAR须和0命中一起解读。
+本软件定位为研究与基线能力验证，不用于临床决策。
+
+七、命令行与检查
+python -X utf8 main.py --action demo
+python -X utf8 main.py --action prepare --manifest examples/manifest.example.json
+python -X utf8 main.py --action train --dataset 完整数据包路径.npz
+python -X utf8 main.py --action predict --dataset 数据包.npz --model examples/historical_model.json
+python -X utf8 main.py --action evaluate --predictions 预测结果.csv --threshold 0.5
+python -X utf8 main.py --action history --project G:/EEGProject/prediction_restart
+python -X utf8 -m unittest discover -s tests -v
+每次命令行运行在outputs中建立新任务目录。只有正常完成才生成provenance.json。
+GUI失败/取消的部分产物不通过下载接口提供；重启后未完成任务标为失败。
+
+八、源程序整理
+python -X utf8 export_source.py
+生成source_export\源程序合并.txt和source_export\源程序清单.json。
+按实际代码统计行数，不包含第三方库、测试、原始EEG、模型参数及运行结果。
+这份代码和源程序清单用于软件开发及后续材料准备，未生成完整登记申请材料。
+著作权人、开发完成日期、权属和登记材料格式仍须按实际情况填写与核验。
+
+参考实现规范
+SciPy Welch: https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.welch.html
+scikit-learn LogisticRegression: https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html
+原项目算法依据：G:\EEGProject\prediction_restart\01_raw_audit至08_reproducibility核心模块。
+
+九、三维脑网络工作区（软件版本始终为 V1.0）
+名称中的“脑网络”指头皮双极导联间的统计相干性网络。
+三维外形和节点位置为标准电极布局示意，不是患者MRI、皮层源定位或解剖连接。
+打开“三维脑网络”可直接查看随软件提供的合成功能演示；来源标签始终可见。
+分析真实数据时填入本机经典EDF完整路径，指定起点与时长，再提交分析。
+起点至少30秒，并按10秒对齐；时长10至600秒，按10秒对齐。
+后端从文件零点连续因果滤波到分析终点，保留状态，不在每个窗口重新启动滤波。
+处理流程：来源与导联校验 → 因果预处理 → 10秒窗 → Welch谱估计 → 频带相干矩阵 → 三维探索。
+Welch段长2秒、周期Hann、50%重叠、分段去均值；矩阵为幅值平方相干性[0,1]。
+频带内离散频点等权平均，频带左闭右开，最后一个频段包含45Hz。
+这与模型的频带功率积分不同：网络不会由90维特征反推，不作为分类模型的新输入。
+平坦导联及不可估计连接使用null，界面缺测不能解释为零连接。
+空间节点代表18个双极导联的示意中点，而非18个脑区。
+共用电极和容积传导会影响估计；隐藏共用电极连接只能减少部分明显混淆。
+筛选阈值、连接比例、节点选择仅改变展示，不能解释为统计显著性或疾病判断。
+网络工作区保留每窗完整128Hz波形，与相干性计算使用相同采样；PSD单位µV²/Hz，频带功率µV²。
+时间回放是按已计算窗口逐帧浏览，不是实时采集，也不预测未来脑网络。
+完整产物：network.json、network_edges.csv、network_report.txt、provenance.json。
+后端CSV包含全部有效无向连接，网页导出的视图连接CSV按当前筛选条件生成。
+Three.js已随软件本地提供，运行时无需CDN或外部网络；许可证在web/vendor中。
+若浏览器禁用WebGL，自动降级为二维网络；也可手动切换二维模式，保留矩阵、数字分析与PNG导出。
+命令行演示：python -X utf8 main.py --action connectivity --source demo
+命令行真实分析：python -X utf8 main.py --action connectivity --source edf --edf-path "完整路径.edf" --start-seconds 30 --duration-seconds 120
+
+十、本次界面与可靠性修正
+软件显示和源程序登记版本统一V1.0，目录和压缩包版本不自动递增。
+任务状态、筛选、患者指标、支持样本数、下载与运行指纹统一在本地工作台展示。
+ROC/PR曲线为所有已知标签窗口合并曲线，图中AUC/AP使用对应合并指标。
+逐患者等权宏平均另行展示；不能把宏平均数值作为合并曲线的面积标注。
+旧任务图像不会自动改写，请重新执行相应分析生成修正后的图表。
+图表以PNG正确类型内联显示；下载仍使用白名单并检查路径边界。
+波形预览保留原点因果滤波状态，支持文件末尾；默认显示30至40秒，最多4条记录预览。
+预测波形按记录与患者匹配，避免误把训练记录波形展示为测试患者波形。
+失败的附属图表会留下警告；未知标签、单类患者、空连接不伪造指标。
+每次计算在独立任务目录存档；原研究代码和冻结实验结果保持只读。
+
+方法参考
+SciPy coherence: https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.coherence.html
+Three.js: https://threejs.org/docs/
