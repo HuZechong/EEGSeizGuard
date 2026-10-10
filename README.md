@@ -23,6 +23,9 @@
 # 依赖（Python 3.12+）
 pip install -r requirements.txt
 
+# 首次使用先获取三维可视化依赖（Three.js，经 SHA-512 完整性校验从官方发行包生成）
+python -X utf8 tools/vendor_three.py
+
 # 启动（Windows 也可双击 启动软件.bat）
 python -X utf8 main.py
 # 浏览器打开 http://127.0.0.1:8765
