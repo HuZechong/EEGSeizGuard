@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "source_root": "G:/EEGProject/chb-mit-scalp-eeg-database-1.0.0/chb-mit-scalp-eeg-database-1.0.0",
+  "records": [
+    {"path": "chb03/chb03_35.edf", "patient": "chb03", "split": "train", "annotations_complete": true, "seizures": [[2592,2656]]},
+    {"path": "chb02/chb02_19.edf", "patient": "chb02", "split": "validation", "annotations_complete": true, "seizures": [[3369,3378]]},
+    {"path": "chb04/chb04_08.edf", "patient": "chb04", "split": "test", "annotations_complete": true, "seizures": [[6446,6557]]}
+  ]
+}
