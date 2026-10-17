@@ -116,7 +116,7 @@ class LocalServer(ThreadingHTTPServer):
         super().__init__(('127.0.0.1',port),Handler)
 
 class Handler(BaseHTTPRequestHandler):
-    server_version='EEGSeizGuard/1.0'
+    server_version='LocalEEGResearch/1.0'
     def log_message(self,*args):
         pass
 
@@ -150,7 +150,7 @@ class Handler(BaseHTTPRequestHandler):
             manager=self.server.manager
             if url.path=='/api/info':
                 return self.respond(200,dict(app_name='头皮脑电癫痫发作预测软件',version=__version__,
-                    root=str(manager.root),project_path='G:\\EEGProject\\prediction_restart',
+                    root=str(manager.root),project_path='research_results',
                     python_version=platform.python_version(),protocol=PROTOCOL.to_dict(),
                     csrf_token=self.server.csrf,default_paths=manager.defaults(),history=None))
             if url.path=='/api/jobs':

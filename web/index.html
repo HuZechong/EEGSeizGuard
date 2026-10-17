@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="EEGSeizGuard 本地脑电研究工作台：Welch 频段特征、逻辑回归与可复核的预测效果分析。">
+  <meta name="description" content="头皮脑电癫痫发作预测软件 本地脑电研究工作台：Welch 频段特征、逻辑回归与可复核的预测效果分析。">
   <meta name="color-scheme" content="light">
-  <title>EEGSeizGuard · 脑电研究工作台</title>
+  <title>头皮脑电癫痫发作预测软件 · 脑电研究工作台</title>
   <link rel="stylesheet" href="/style.css">
   <link rel="stylesheet" href="/brain-network.css">
   <script src="/app.js" defer></script>
@@ -15,9 +15,9 @@
   <a class="skip-link" href="#main-content">跳到主内容</a>
   <div class="app-shell">
     <aside class="sidebar" aria-label="工作台导航">
-      <a class="brand" href="#overview" aria-label="EEGSeizGuard 工作台首页">
+      <a class="brand" href="#overview" aria-label="头皮脑电癫痫发作预测软件 工作台首页">
         <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M3 17h6l3-8 5 16 4-11 3 3h5"/></svg></span>
-        <span><strong>EEGSeizGuard</strong><small>头皮脑电癫痫发作预测软件</small></span>
+        <span><strong>头皮脑电癫痫发作预测软件</strong><small>V1.0 · 本地研究工作台</small></span>
       </a>
       <div class="nav-label">研究工作台 <span class="version">V1.0</span></div>
       <nav class="nav-list">
@@ -38,7 +38,7 @@
 
     <div class="workspace">
       <header class="topbar">
-        <div><span class="breadcrumb">EEGSeizGuard</span><span class="breadcrumb-divider">/</span><span id="current-view-name">工作概览</span></div>
+        <div><span class="breadcrumb">头皮脑电癫痫发作预测软件</span><span class="breadcrumb-divider">/</span><span id="current-view-name">工作概览</span></div>
         <div class="topbar-actions"><span class="topbar-local"><span class="status-dot" id="topbar-status-dot"></span><span id="topbar-status">连接中</span></span><span class="protocol-pill">RESEARCH EDITION · V1.0</span><button class="button button-small button-ghost" type="button" id="refresh-button" aria-label="重新连接并刷新任务">刷新</button></div>
       </header>
 
@@ -76,7 +76,7 @@
 
         <section class="view" id="view-prepare" aria-labelledby="prepare-title" hidden>
           <div class="page-heading"><div><div class="eyebrow">STEP 01 / DATA PREPARATION</div><h1 id="prepare-title">准备一份可靠的数据集</h1><p>通过本地数据清单组织信号和发作标注，保留完整的数据来源。</p></div><span class="step-chip">01 / 04</span></div>
-          <div class="form-layout"><form class="panel form-panel" id="prepare-form"><div class="panel-heading"><h2>数据清单</h2><span class="tag">JSON</span></div><p class="form-intro">填写清单文件的本机完整路径。文件格式与示例请参照项目 examples 目录和使用说明。</p><label for="manifest-path">清单文件路径 <span class="required">必填</span></label><input id="manifest-path" name="manifest" type="text" placeholder="G:\软著材料\EEGSeizGuard\examples\manifest.json" autocomplete="off" spellcheck="false" required><p class="field-help">清单需要关联患者、信号文件、发作事件和数据划分。请先核实清单中的路径。</p><div class="form-divider"></div><div class="config-list"><div><span>特征方法</span><strong>Welch 功率谱 · 五频段</strong></div><div><span>频段维度</span><strong>18 导联 × 5 频段</strong></div><div><span>预测定义</span><strong>未来 300–2100 秒内是否发作</strong></div><div><span>未来观察不足</span><strong>标记为未知，不作为阴性</strong></div></div><div class="form-footer"><button class="button button-primary run-button" type="submit">开始准备数据 <span aria-hidden="true">→</span></button><span>结果保存在独立任务目录</span></div></form><aside class="panel guidance-panel"><div class="guidance-symbol" aria-hidden="true">i</div><h2>先确认这三件事</h2><ol class="guidance-list"><li><strong>信号与标注对应</strong><p>发作时间应以对应记录的秒数表示，避免把不同记录的标注混在一起。</p></li><li><strong>患者划分一致</strong><p>同一个患者应只属于一个数据分区。训练、验证和测试分开管理。</p></li><li><strong>时间范围可观察</strong><p>只有完整观察了所需未来区间，才能可靠地确认阴性标签。</p></li></ol><div class="note">首次体验建议先运行「完整演示」，检查软件流程，再导入真实数据。</div></aside></div>
+          <div class="form-layout"><form class="panel form-panel" id="prepare-form"><div class="panel-heading"><h2>数据清单</h2><span class="tag">JSON</span></div><p class="form-intro">填写清单文件路径（绝对路径或相对于启动目录）。文件格式与示例请参照项目 examples 目录和使用说明。</p><label for="manifest-path">清单文件路径 <span class="required">必填</span></label><input id="manifest-path" name="manifest" type="text" placeholder="data\manifest.json" autocomplete="off" spellcheck="false" required><p class="field-help">清单需要关联患者、信号文件、发作事件和数据划分。请先核实清单中的路径。</p><div class="form-divider"></div><div class="config-list"><div><span>特征方法</span><strong>Welch 功率谱 · 五频段</strong></div><div><span>频段维度</span><strong>18 导联 × 5 频段</strong></div><div><span>预测定义</span><strong>未来 300–2100 秒内是否发作</strong></div><div><span>未来观察不足</span><strong>标记为未知，不作为阴性</strong></div></div><div class="form-footer"><button class="button button-primary run-button" type="submit">开始准备数据 <span aria-hidden="true">→</span></button><span>结果保存在独立任务目录</span></div></form><aside class="panel guidance-panel"><div class="guidance-symbol" aria-hidden="true">i</div><h2>先确认这三件事</h2><ol class="guidance-list"><li><strong>信号与标注对应</strong><p>发作时间应以对应记录的秒数表示，避免把不同记录的标注混在一起。</p></li><li><strong>患者划分一致</strong><p>同一个患者应只属于一个数据分区。训练、验证和测试分开管理。</p></li><li><strong>时间范围可观察</strong><p>只有完整观察了所需未来区间，才能可靠地确认阴性标签。</p></li></ol><div class="note">首次体验建议先运行「完整演示」，检查软件流程，再导入真实数据。</div></aside></div>
         </section>
 
         <section class="view" id="view-train" aria-labelledby="train-title" hidden>
@@ -91,7 +91,7 @@
 
         <section class="view" id="view-evaluate" aria-labelledby="evaluate-title" hidden>
           <div class="page-heading"><div><div class="eyebrow">STEP 04 / PERFORMANCE ANALYSIS</div><h1 id="evaluate-title">让预测效果经得起核对</h1><p>基于保存的评分结果分析表现，或读取原项目的既有研究记录。</p></div><span class="step-chip">04 / 04</span></div>
-          <div class="analysis-form-grid"><form class="panel form-panel" id="evaluate-form"><div class="panel-heading"><h2>分析本次预测结果</h2><span class="tag tag-green">本次任务</span></div><label for="predictions-path">预测结果 CSV 路径 <span class="required">必填</span></label><input id="predictions-path" name="predictions" type="text" placeholder="填写 predictions.csv 的完整路径" autocomplete="off" spellcheck="false" required><p class="field-help">需要患者、真实标签和风险分数；未知标签单独统计。</p><label for="threshold">分类阈值</label><div class="threshold-control"><input id="threshold" name="threshold" type="number" min="0" max="1" step="0.01" value="0.5" required><span>风险分数 ≥ 阈值时判为阳性</span></div><p class="field-help">阈值会影响 F1 和平衡准确率，不改变 AUROC 和 AP。</p><div class="form-footer"><button class="button button-primary run-button" type="submit">计算效果指标 <span aria-hidden="true">→</span></button></div></form><form class="panel form-panel historical-form" id="history-form"><div class="panel-heading"><h2>读取已有研究结果</h2><span class="tag tag-amber">历史结果</span></div><p class="form-intro">读取原 EEG 项目里的已有评估记录，保留来源。该任务不重跑实验，重新核对已有预测的窗口指标。</p><label for="project-path">原项目目录 <span class="required">必填</span></label><input id="project-path" name="project" type="text" value="G:\EEGProject\prediction_restart" autocomplete="off" spellcheck="false" required><p class="field-help">已有实验和本次软件输出独立展示。不会将历史指标归因于新生成的代码。</p><div class="form-footer"><button class="button button-secondary run-button" type="submit">读取历史结果 <span aria-hidden="true">↶</span></button></div></form></div><div class="metric-note"><strong>指标边界</strong><span>这些是窗口级分类指标。事件命中率、误报次数/小时和临床有效性需要额外的事件级协议，不能由窗口指标直接推出。</span></div>
+          <div class="analysis-form-grid"><form class="panel form-panel" id="evaluate-form"><div class="panel-heading"><h2>分析本次预测结果</h2><span class="tag tag-green">本次任务</span></div><label for="predictions-path">预测结果 CSV 路径 <span class="required">必填</span></label><input id="predictions-path" name="predictions" type="text" placeholder="填写 predictions.csv 的完整路径" autocomplete="off" spellcheck="false" required><p class="field-help">需要患者、真实标签和风险分数；未知标签单独统计。</p><label for="threshold">分类阈值</label><div class="threshold-control"><input id="threshold" name="threshold" type="number" min="0" max="1" step="0.01" value="0.5" required><span>风险分数 ≥ 阈值时判为阳性</span></div><p class="field-help">阈值会影响 F1 和平衡准确率，不改变 AUROC 和 AP。</p><div class="form-footer"><button class="button button-primary run-button" type="submit">计算效果指标 <span aria-hidden="true">→</span></button></div></form><form class="panel form-panel historical-form" id="history-form"><div class="panel-heading"><h2>读取已有研究结果</h2><span class="tag tag-amber">历史结果</span></div><p class="form-intro">读取原 EEG 项目里的已有评估记录，保留来源。该任务不重跑实验，重新核对已有预测的窗口指标。</p><label for="project-path">原项目目录 <span class="required">必填</span></label><input id="project-path" name="project" type="text" value="research_results" autocomplete="off" spellcheck="false" required><p class="field-help">已有实验和本次软件输出独立展示。不会将历史指标归因于新生成的代码。</p><div class="form-footer"><button class="button button-secondary run-button" type="submit">读取历史结果 <span aria-hidden="true">↶</span></button></div></form></div><div class="metric-note"><strong>指标边界</strong><span>这些是窗口级分类指标。事件命中率、误报次数/小时和临床有效性需要额外的事件级协议，不能由窗口指标直接推出。</span></div>
         </section>
 
         <section class="view" id="view-jobs" aria-labelledby="jobs-title" hidden>
@@ -120,7 +120,7 @@
           <details class="log-details" id="log-details"><summary>运行日志 <span id="log-count">0 条</span></summary><pre id="task-logs" class="log-output" tabindex="0" aria-label="运行日志"></pre></details>
           <details class="result-details" id="result-details" hidden><summary>查看完整结果记录</summary><pre id="raw-result" tabindex="0"></pre></details>
         </section>
-        <footer class="footer"><span>EEGSeizGuard V1.0</span><span>研究基线工具 · 本地运行 · 结果可追溯</span></footer>
+        <footer class="footer"><span>头皮脑电癫痫发作预测软件 V1.0</span><span>研究基线工具 · 本地运行 · 结果可追溯</span></footer>
       </main>
     </div>
   </div>

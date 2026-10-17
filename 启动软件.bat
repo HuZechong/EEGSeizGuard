@@ -2,8 +2,8 @@
 setlocal
 chcp 65001 >nul
 cd /d "%~dp0"
-if exist "E:\anaconda1\envs\pytorch\python.exe" (
-  "E:\anaconda1\envs\pytorch\python.exe" -X utf8 main.py
+if exist ".venv\Scripts\python.exe" (
+  ".venv\Scripts\python.exe" -X utf8 main.py
 ) else (
   python -X utf8 main.py
 )

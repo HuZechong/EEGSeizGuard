@@ -1,4 +1,4 @@
-EEGSeizGuard V1.0 — bundled dependency notice
+头皮脑电癫痫发作预测软件 V1.0 — bundled dependency notice
 
 Three.js 0.186.1
 Copyright contributors to Three.js. Licensed under the MIT License.

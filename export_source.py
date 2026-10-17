@@ -15,7 +15,7 @@ def main():
         texts.append(f'===== {relative} =====\n'+text.rstrip()+'\n')
     out=root/'source_export'
     atomic_bytes(out/'源程序合并.txt','\n'.join(texts).encode('utf-8-sig'))
-    manifest=dict(app='EEGSeizGuard',version='V1.0',source_lines=sum(e['lines'] for e in entries),
+    manifest=dict(app='头皮脑电癫痫发作预测软件',version='V1.0',source_lines=sum(e['lines'] for e in entries),
                   files=entries,exclusions=['第三方依赖','原始EEG','模型参数','运行结果','测试代码'],
                   note='真实源程序行数；未进行申请材料排版或页数扩写')
     write_json(out/'源程序清单.json',manifest)

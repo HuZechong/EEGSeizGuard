@@ -1,8 +1,8 @@
-头皮脑电癫痫发作预测软件 EEGSeizGuard V1.0
+头皮脑电癫痫发作预测软件 V1.0
 
 一、启动
 双击本目录的“启动软件.bat”，浏览器将打开中文工作台。
-当前电脑优先使用 E:\anaconda1\envs\pytorch\python.exe；其他电脑使用PATH中的Python。
+启动脚本优先使用本项目 .venv 环境，其次使用 PATH 中的 Python 3.12。
 程序需要Python及NumPy、SciPy、scikit-learn、Matplotlib。缺依赖时执行“安装依赖.bat”。
 本次验证环境为Windows、Python 3.12.13；具体依赖见验收记录.json与各任务provenance.json。
 关闭启动窗口或按Ctrl+C停止服务。默认端口8765被占用时自动选空闲端口。
@@ -11,7 +11,7 @@
 二、推荐使用顺序
 1. 点击“开始完整演示”：用7个虚拟对象的合成信号检查训练和评估流程。
    合成信号特意有频率差异，演示高指标仅表明流程可运行，不是预测有效性证据。
-2. “效果分析”中读取历史结果：默认G:\EEGProject\prediction_restart。
+2. “效果分析”中读取历史结果：填写实际研究结果目录（示例 research_results）。
    读取既有模型预测，重算窗口AUROC/AP并与原报告核对，源文件保持只读。
 3. “数据准备”填写EDF清单路径，再将输出特征包用于训练或预测。
 4. “风险预测”中选择随附examples\historical_model.json与准备好的数据包，
@@ -79,7 +79,7 @@ python -X utf8 main.py --action prepare --manifest examples/manifest.example.jso
 python -X utf8 main.py --action train --dataset 完整数据包路径.npz
 python -X utf8 main.py --action predict --dataset 数据包.npz --model examples/historical_model.json
 python -X utf8 main.py --action evaluate --predictions 预测结果.csv --threshold 0.5
-python -X utf8 main.py --action history --project G:/EEGProject/prediction_restart
+python -X utf8 main.py --action history --project research_results
 python -X utf8 -m unittest discover -s tests -v
 每次命令行运行在outputs中建立新任务目录。只有正常完成才生成provenance.json。
 GUI失败/取消的部分产物不通过下载接口提供；重启后未完成任务标为失败。
@@ -94,7 +94,7 @@ python -X utf8 export_source.py
 参考实现规范
 SciPy Welch: https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.welch.html
 scikit-learn LogisticRegression: https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html
-原项目算法依据：G:\EEGProject\prediction_restart\01_raw_audit至08_reproducibility核心模块。
+算法与数据协议见本项目核心模块及软件设计说明书。
 
 九、三维脑网络工作区（软件版本始终为 V1.0）
 名称中的“脑网络”指头皮双极导联间的统计相干性网络。
@@ -135,3 +135,10 @@ ROC/PR曲线为所有已知标签窗口合并曲线，图中AUC/AP使用对应�
 方法参考
 SciPy coherence: https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.coherence.html
 Three.js: https://threejs.org/docs/
+
+十一、网络来源切换与导出一致性
+加载演示后可在任务记录中重新选择已有EDF任务，恢复该任务网络。
+后台刷新保留主动选择的演示；读取网络失败可重选同一任务重试。
+保存PNG时暂停回放，并固定点击时的图像、来源、时窗和筛选信息。
+前端回归检查：node --test tests/test_network_snapshot.cjs tests/test_network_selection.cjs
+这项开发检查需要Node.js；软件的正常运行不需要Node.js。

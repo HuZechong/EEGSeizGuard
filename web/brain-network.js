@@ -1,4 +1,4 @@
-/* EEGSeizGuard V1.0. All network weights come from the supplied signal analysis.
+/* 头皮脑电癫痫发作预测软件 V1.0. All network weights come from the supplied signal analysis.
  * Three-dimensional anatomy below is a procedural schematic, never patient MRI. */
 const mount = document.getElementById('network-workspace');
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -23,7 +23,7 @@ if (mount) {
   <section class="bn-panel bn-source" aria-label="脑网络数据来源">
     <div class="bn-source-top"><div class="bn-source-title"><span class="bn-badge demo" id="bn-source-badge">合成信号演示</span><strong id="bn-source-label">正在读取离线演示…</strong></div><div class="bn-toolbar"><button class="bn-button" id="bn-demo" type="button">加载演示</button><button class="bn-button bn-primary" id="bn-import-toggle" type="button" aria-expanded="false" aria-controls="bn-import">分析我的 EDF <span aria-hidden="true">↗</span></button></div></div>
     <p class="bn-source-description" id="bn-source-description">每一条连接均由脑电信号的相干性计算得到。演示信号仅用于体验交互。</p>
-    <form class="bn-import" id="bn-import" hidden><div class="bn-import-grid"><div><label for="bn-edf-path">EDF 文件的本机完整路径</label><input id="bn-edf-path" required autocomplete="off" spellcheck="false" placeholder="G:\\EEGProject\\…\\chb01_01.edf"></div><div><label for="bn-start">开始秒数</label><input id="bn-start" type="number" min="30" step="10" value="30" required></div><div><label for="bn-duration">分析时长 / 秒</label><input id="bn-duration" type="number" min="10" max="600" step="10" value="120" required></div><button class="bn-button bn-primary" id="bn-analyze" type="submit">计算脑网络</button></div><p>开始位置 ≥ 30 秒、时长 10–600 秒，均为 10 的倍数。连续从记录起点滤波以保持因果状态；长记录可能需要更多处理时间。必须具备完整的 18 路导联。</p></form>
+    <form class="bn-import" id="bn-import" hidden><div class="bn-import-grid"><div><label for="bn-edf-path">EDF 文件路径</label><input id="bn-edf-path" required autocomplete="off" spellcheck="false" placeholder="data/chb03_35.edf"></div><div><label for="bn-start">开始秒数</label><input id="bn-start" type="number" min="30" step="10" value="30" required></div><div><label for="bn-duration">分析时长 / 秒</label><input id="bn-duration" type="number" min="10" max="600" step="10" value="120" required></div><button class="bn-button bn-primary" id="bn-analyze" type="submit">计算脑网络</button></div><p>开始位置 ≥ 30 秒、时长 10–600 秒，均为 10 的倍数。连续从记录起点滤波以保持因果状态；长记录可能需要更多处理时间。必须具备完整的 18 路导联。</p></form>
   </section>
   <div class="bn-status" id="bn-status" role="status" aria-live="polite"></div>
   <div class="bn-process" role="group" aria-label="网络构建过程">${['预处理信号','选择频段','计算相干矩阵','构建空间网络','逐窗回放'].map((name,i)=>`<button type="button" data-stage="${i}" class="${i===3?'active':''}" aria-pressed="${i===3}"><b>0${i+1}</b><span><strong>${name}</strong><small>${['18 导联 · 128 Hz','Welch 频谱估计','0–1 统计联系','双极导联示意位置','10 秒窗 · 同步联动'][i]}</small></span></button>`).join('')}</div>
@@ -56,7 +56,7 @@ if (mount) {
     <section class="bn-panel bn-analysis-panel" id="bn-signal-panel" aria-labelledby="bn-signal-title"><div class="bn-heading"><h2 id="bn-signal-title">信号与频谱</h2><small id="bn-signal-time">同一时间窗</small></div><p class="bn-panel-description" id="bn-signal-description">显示前 4 路预处理信号；选择导联后显示该导联和最强邻居。</p><div class="bn-wave-wrap" id="bn-wave"></div><div class="bn-panel-subtitle"><span id="bn-spectrum-title">Welch 功率谱 · dB(µV²/Hz)</span><div class="bn-data-tabs" role="group" aria-label="频谱显示方式"><button type="button" class="bn-button" data-chart="psd" aria-pressed="true">功率谱</button><button type="button" class="bn-button" data-chart="bands" aria-pressed="false">频段功率</button></div></div><div class="bn-spectrum-wrap" id="bn-spectrum"></div><p class="bn-panel-description" id="bn-spectrum-description">频谱显示所选导联；未选时显示第一路导联。着色区域为当前分析频段。</p></section>
   </div>
   <section class="bn-panel bn-edge-panel"><div class="bn-heading"><h2>当前连接清单 <small id="bn-edge-table-count"></small></h2><div class="bn-toolbar"><button type="button" class="bn-button" id="bn-export-csv">导出当前连接 CSV</button><button type="button" class="bn-button" id="bn-export-json">导出完整网络 JSON</button><button type="button" class="bn-button" id="bn-reset">重置筛选</button></div></div><div class="bn-edge-table-wrap"><table class="bn-edge-table"><thead><tr><th scope="col">序号</th><th scope="col">导联 A</th><th scope="col">导联 B</th><th scope="col">相干性</th><th scope="col">空间关系</th><th scope="col">共享电极</th></tr></thead><tbody id="bn-edge-body"></tbody></table><div class="bn-edge-empty" id="bn-edge-empty">读取信号后显示连接。</div></div></section>
-  <details class="bn-method"><summary>计算方法、数据口径与解读边界</summary><p>此视图分析的是双极头皮导联之间的统计联系，独立于风险预测模型。它没有增加新的癫痫预测算法，也不把相干性解释为发作概率。</p><ul><li>每个 10 秒信号窗使用 Welch 频谱估计。幅值平方相干性在所选频带内平均；不进行显著性检验。矩阵对称、无方向，范围为 0–1。</li><li>节点位置来自标准电极的示意坐标，将双极电极中点方向投影到头皮球面。三维脑表面由程序生成，仅辅助辨别方位，不代表患者 MRI、精确电极位置或脑源重建。</li><li>共享电极、体积传导、伪迹和短时间窗都会影响相干性。默认隐藏共享电极连接仍不能排除这些影响；连接强并不等于真实神经连接或因果关系。</li><li>展示阈值、连接比例及空间筛选仅作用于网络和连接清单；完整矩阵始终保留原始数值。平坦或不可估计的导联显示为未知，不填成零连接。</li><li>合成演示由已知频率成分和噪声构成。它不包含患者数据，不可用于评价预测性能或临床决策。</li></ul><div class="bn-method-footer"><span>EEGSeizGuard V1.0 · 本地计算 · 无外部数据上传</span><span id="bn-source-id" class="bn-source-id"></span></div></details>`;
+  <details class="bn-method"><summary>计算方法、数据口径与解读边界</summary><p>此视图分析的是双极头皮导联之间的统计联系，独立于风险预测模型。它没有增加新的癫痫预测算法，也不把相干性解释为发作概率。</p><ul><li>每个 10 秒信号窗使用 Welch 频谱估计。幅值平方相干性在所选频带内平均；不进行显著性检验。矩阵对称、无方向，范围为 0–1。</li><li>节点位置来自标准电极的示意坐标，将双极电极中点方向投影到头皮球面。三维脑表面由程序生成，仅辅助辨别方位，不代表患者 MRI、精确电极位置或脑源重建。</li><li>共享电极、体积传导、伪迹和短时间窗都会影响相干性。默认隐藏共享电极连接仍不能排除这些影响；连接强并不等于真实神经连接或因果关系。</li><li>展示阈值、连接比例及空间筛选仅作用于网络和连接清单；完整矩阵始终保留原始数值。平坦或不可估计的导联显示为未知，不填成零连接。</li><li>合成演示由已知频率成分和噪声构成。它不包含患者数据，不可用于评价预测性能或临床决策。</li></ul><div class="bn-method-footer"><span>头皮脑电癫痫发作预测软件 V1.0 · 本地计算 · 无外部数据上传</span><span id="bn-source-id" class="bn-source-id"></span></div></details>`;
   wireEvents();
   initScene().finally(() => {
     if (state.data) { createNodes(); updateAll(); }
@@ -381,21 +381,52 @@ function exportCSV() {
   if(!state.data)return;const f=frame(),header=['source_kind','source_label','start_seconds','end_seconds','band','channel_a','channel_b','coherence','shared_electrode','threshold','maximum_candidate_percent','spatial_filter','focus_channel'];
   const quote=v=>{let value=String(v??'');if(typeof v==='string'&&/^\s*[=+\-@]/.test(value))value="'"+value;return '"'+value.replace(/"/g,'""')+'"';};
   const rows=state.edges.map(e=>[state.data.source.kind,state.data.source.label,f.start_seconds,f.end_seconds,state.band,state.data.nodes[e.i].label,state.data.nodes[e.j].label,e.value,e.shared,state.threshold,state.density,state.hemisphere,state.selected>=0?state.data.nodes[state.selected].label:'']);
-  download(`EEGSeizGuard_V1.0_${state.band}_${f.start_seconds}s_connections.csv`,new Blob(['\uFEFF'+[header,...rows].map(row=>row.map(quote).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'}));
+  download(`头皮脑电癫痫发作预测软件_V1.0_${state.band}_${f.start_seconds}s_connections.csv`,new Blob(['\uFEFF'+[header,...rows].map(row=>row.map(quote).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'}));
 }
 async function snapshot() {
   if(!state.data)return;
   try {
-    let original;
-    if(state.webgl&&!state.flat){renderer.render(scene,camera);original=renderer.domElement;}
-    else {original=await new Promise((resolve,reject)=>{const image=new Image();image.onload=()=>resolve(image);image.onerror=()=>reject(new Error('二维网络图像未完成加载'));image.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(fallbackSVG());});}
-    const out=document.createElement('canvas');out.width=1400;out.height=1130;const ctx=out.getContext('2d');ctx.fillStyle='#0a1c2b';ctx.fillRect(0,0,out.width,out.height);ctx.fillStyle='#e2f1f2';ctx.font='600 27px Arial, Microsoft YaHei, sans-serif';ctx.fillText('EEGSeizGuard V1.0 · 头皮导联相干网络',45,48);
-    ctx.fillStyle='#9fbcc6';ctx.font='18px Arial, Microsoft YaHei, sans-serif';ctx.fillText(`${state.data.source.kind==='synthetic_demo'?'合成演示':'真实 EDF 信号'} · ${band().label} ${band().low}–${band().high} Hz · ${seconds(frame().start_seconds)}–${seconds(frame().end_seconds)}`,45,83);
-    const sw=original.width||500,sh=original.height||500,scale=Math.min(1320/sw,855/sh),w=sw*scale,h=sh*scale;ctx.drawImage(original,(1400-w)/2,112+(855-h)/2,w,h);
-    ctx.fillText(`阈值 ≥ ${fmt(state.threshold,2)} · 候选连接最多 ${state.density}% · 显示 ${state.edges.length} 对 · ${state.shared?'包含':'隐藏'}共享电极`,45,1010);
-    ctx.font='16px Arial, Microsoft YaHei, sans-serif';ctx.fillStyle='#829eab';ctx.fillText('节点为双极导联，三维脑表面和位置仅作示意；统计联系不代表脑区连接、方向或因果。',45,1050);
-    ctx.fillText(`视图导出时间 ${new Date().toISOString()}`,45,1080);
-    const blob=await new Promise(resolve=>out.toBlob(resolve,'image/png'));if(!blob)throw new Error('图像生成失败');download(`EEGSeizGuard_V1.0_${state.band}_${frame().start_seconds}s_network.png`,blob);status('当前视图已导出 PNG，包含数据来源、时间窗与筛选口径。');
+    setPlaying(false);
+    // Freeze the complete export before Image.onload or Canvas.toBlob yields.
+    // Users can keep changing the workspace while the captured image is encoded.
+    const f=frame(),b=band(),captured=Object.freeze({
+      sourceKind:state.data.source.kind,band:state.band,bandLabel:b.label,low:b.low,high:b.high,
+      sourceLabel:String(state.data.source.label||state.data.source.path||'未提供'),
+      sourceHash:String(state.data.source.sha256||state.data.source.file_sha256||''),
+      hemisphere:state.hemisphere,focusLabel:state.focus&&state.selected>=0?String(state.data.nodes[state.selected].label):'全部导联',
+      start:f.start_seconds,end:f.end_seconds,threshold:state.threshold,density:state.density,
+      count:state.edges.length,shared:state.shared,exportedAt:new Date().toISOString()
+    });
+    let original,sw,sh;
+    if(state.webgl&&!state.flat){
+      renderer.render(scene,camera);
+      sw=renderer.domElement.width;sh=renderer.domElement.height;
+      original=document.createElement('canvas');original.width=sw;original.height=sh;
+      original.getContext('2d').drawImage(renderer.domElement,0,0);
+    } else {
+      const svg=fallbackSVG();sw=500;sh=500;
+      original=await new Promise((resolve,reject)=>{const image=new Image();image.onload=()=>resolve(image);image.onerror=()=>reject(new Error('二维网络图像未完成加载'));image.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);});
+    }
+    const out=document.createElement('canvas');out.width=1400;out.height=1130;const ctx=out.getContext('2d');ctx.fillStyle='#0a1c2b';ctx.fillRect(0,0,out.width,out.height);ctx.fillStyle='#e2f1f2';ctx.font='600 27px Arial, Microsoft YaHei, sans-serif';ctx.fillText('头皮脑电癫痫发作预测软件 V1.0 · 头皮导联相干网络',45,48);
+    const writeLine=(text,y)=>{
+      let fitted=String(text);const limit=out.width-90;
+      if(ctx.measureText(fitted).width>limit){
+        const chars=Array.from(fitted);let lo=0,hi=chars.length;
+        while(lo<hi){const mid=Math.ceil((lo+hi)/2);if(ctx.measureText(chars.slice(0,mid).join('')+'…').width<=limit)lo=mid;else hi=mid-1;}
+        fitted=chars.slice(0,lo).join('')+'…';
+      }
+      ctx.fillText(fitted,45,y);
+    };
+    ctx.fillStyle='#9fbcc6';ctx.font='18px Arial, Microsoft YaHei, sans-serif';ctx.fillText(`${captured.sourceKind==='synthetic_demo'?'合成演示':'真实 EDF 信号'} · ${captured.bandLabel} ${captured.low}–${captured.high} Hz · ${seconds(captured.start)}–${seconds(captured.end)}`,45,83);
+    const scale=Math.min(1320/sw,855/sh),w=sw*scale,h=sh*scale;ctx.drawImage(original,(1400-w)/2,112+(855-h)/2,w,h);
+    writeLine(`阈值 ≥ ${fmt(captured.threshold,2)} · 候选连接最多 ${captured.density}% · 显示 ${captured.count} 对 · ${captured.shared?'包含':'隐藏'}共享电极`,1010);
+    ctx.font='16px Arial, Microsoft YaHei, sans-serif';
+    const spatialLabel={all:'全部导联',cross:'仅左右跨侧',left:'仅左侧内部',right:'仅右侧内部'}[captured.hemisphere]||'全部导联';
+    writeLine(`空间：${spatialLabel} · 聚焦：${captured.focusLabel} · 来源：${captured.sourceLabel}`,1040);
+    ctx.fillStyle='#829eab';writeLine('节点为双极导联，三维脑表面和位置仅作示意；统计联系不代表脑区连接、方向或因果。',1070);
+    const shortHash=captured.sourceHash?captured.sourceHash.slice(0,12)+(captured.sourceHash.length>12?'…':''):'未提供';
+    writeLine(`视图导出时间 ${captured.exportedAt} · SHA-256 ${shortHash}`,1100);
+    const blob=await new Promise(resolve=>out.toBlob(resolve,'image/png'));if(!blob)throw new Error('图像生成失败');download(`头皮脑电癫痫发作预测软件_V1.0_${captured.band}_${captured.start}s_network.png`,blob);status('当前视图已导出 PNG，包含数据来源、时间窗与筛选口径。');
   } catch(error) { status(`无法导出图像：${error.message||'浏览器未完成绘制'}。仍可导出连接 CSV 和完整 JSON。`,true); }
 }
 function wireEvents() {
@@ -426,7 +457,7 @@ function wireEvents() {
   $('rotate').addEventListener('click',()=>{if(orbit){orbit.autoRotate=!orbit.autoRotate;$('rotate').setAttribute('aria-pressed',String(orbit.autoRotate));}});
   $('flat').addEventListener('click',toggleFlat);
   $('snapshot').addEventListener('click',snapshot);$('export-csv').addEventListener('click',exportCSV);
-  $('export-json').addEventListener('click',()=>{if(state.data)download('EEGSeizGuard_V1.0_network.json',new Blob([JSON.stringify(state.data,null,2)],{type:'application/json'}));});
+  $('export-json').addEventListener('click',()=>{if(state.data)download('头皮脑电癫痫发作预测软件_V1.0_network.json',new Blob([JSON.stringify(state.data,null,2)],{type:'application/json'}));});
   $('reset').addEventListener('click',()=>{state.threshold=.45;state.density=35;state.hemisphere='all';state.shared=false;state.focus=false;state.selected=-1;state.pair=null;$('threshold').value='.45';$('density').value='35';$('threshold-output').value='0.45';$('density-output').value='35%';$('hemisphere').value='all';$('shared').checked=false;$('focus').checked=false;$('node').value='-1';$('pair-info').textContent='选择导联后，对应行与列将高亮。';updateAll();});
   mount.addEventListener('click',event=>{
     const stage=event.target.closest('[data-stage]');if(stage){
@@ -453,7 +484,9 @@ function wireEvents() {
   });
   window.addEventListener('eeg:job-selected',event=>{
     const job=event.detail;if(job?.action!=='connectivity')return;
-    if(job.status==='completed'&&job.id!==state.lastJob){state.lastJob=job.id;loadData(`/api/artifact?job=${encodeURIComponent(job.id)}&name=network.json`,job.id);}
+    // Explicit selection must restore this task after a demo or a failed read;
+    // passive polling must preserve the source the user chose to explore.
+    if(job.status==='completed'&&(job.id!==state.lastJob||job.explicitSelection===true)){state.lastJob=job.id;loadData(`/api/artifact?job=${encodeURIComponent(job.id)}&name=network.json`,job.id);}
     else if(job.status==='failed')status(`网络分析失败：${job.error||'请查看任务日志。'}`,true);
     else if(job.status==='cancelled')status('网络分析已取消，当前已有视图保持可用。');
     else if(['queued','running'].includes(job.status))status(`网络分析进行中 · ${Math.round(job.progress||0)}%。当前展示仍为上一次加载的数据。`);

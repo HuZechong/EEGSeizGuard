@@ -6,12 +6,12 @@ from uuid import uuid4
 import webbrowser
 
 def main():
-    parser=argparse.ArgumentParser(description='EEGSeizGuard 本地研究软件')
+    parser=argparse.ArgumentParser(description='头皮脑电癫痫发作预测软件 本地研究软件')
     parser.add_argument('--port',type=int,default=8765)
     parser.add_argument('--no-browser',action='store_true')
     parser.add_argument('--action',choices=['demo','prepare','train','predict','evaluate','history','connectivity'])
     parser.add_argument('--dataset'); parser.add_argument('--model'); parser.add_argument('--predictions')
-    parser.add_argument('--manifest'); parser.add_argument('--project',default='G:/EEGProject/prediction_restart')
+    parser.add_argument('--manifest'); parser.add_argument('--project',default='research_results')
     parser.add_argument('--threshold',type=float,default=.5)
     parser.add_argument('--source',choices=['demo','edf'],default='demo')
     parser.add_argument('--edf-path')
@@ -43,7 +43,7 @@ def main():
                 raise
             server=LocalServer(root,0)
         url=f'http://127.0.0.1:{server.server_port}'
-        print(f'EEGSeizGuard V1.0\n{url}\nClose this window or press Ctrl+C to stop.',flush=True)
+        print(f'头皮脑电癫痫发作预测软件 V1.0\n{url}\nClose this window or press Ctrl+C to stop.',flush=True)
         if not args.no_browser:
             webbrowser.open(url)
         try:

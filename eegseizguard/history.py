@@ -212,7 +212,7 @@ def import_history(project, out, log=None, cancel=None):
     recomputed['history'] = history
     recomputed['source_kind'] = 'historical'
     report = (
-        'EEGSeizGuard 只读历史导入报告\n'
+        '头皮脑电癫痫发作预测软件 只读历史导入报告\n'
         f'来源：{roots["predictions"]}\nSHA256：{hashes["predictions"]}\n'
         f'窗口：{len(labels):,}；患者：{len(expected_patients)}；未知标签窗口：{labels.count(-1):,}\n'
         f'宏 AUROC：{_formatted(checks["auroc"]["recomputed"])}；原始：{_formatted(checks["auroc"]["source"])}；核对一致\n'

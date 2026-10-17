@@ -1,8 +1,10 @@
-# EEGSeizGuard — 头皮脑电癫痫发作预测软件
+# 头皮脑电癫痫发作预测软件
 
 研究版 V1.0 · 本机离线运行 · 单一算法可追溯输出
 
 头皮脑电（scalp EEG）癫痫发作预测研究软件：基于 Welch 频带特征与逻辑回归的发作预测基线，提供数据准备、模型训练、风险预测、效果分析与三维脑网络可视化的一体化研究工作台。
+
+> **名称与任务边界**：软件名称中的“预测”对应本版实现的发作前风险任务（SPH=300 s、SOP=1800 s），不据此宣称具有实时发作期检测或临床诊断功能。
 
 > **研究用途声明**：本软件仅用于研究与基线能力验证，预测结果不用于临床决策。合成演示数据不代表真实预测效果。
 
@@ -21,7 +23,8 @@
 
 ```bash
 # 依赖（Python 3.12+）
-pip install -r requirements.txt
+python -m pip install -r requirements-lock.txt
+# 或使用兼容范围安装：python -m pip install -r requirements.txt
 
 # 首次使用先获取三维可视化依赖（Three.js，经 SHA-512 完整性校验从官方发行包生成）
 python -X utf8 tools/vendor_three.py
@@ -69,4 +72,6 @@ source_export/           软著源程序导出（源程序合并.txt / 清单.js
 
 ## 许可与材料
 
-本项目为软件著作权登记（软著）而整理，著作权人与开发完成日期见申报材料。源码按"前 30 页 + 后 30 页"策略准备（总行数 >3000），完整源码见 `source_export/源程序合并.txt`。
+软件全称为“头皮脑电癫痫发作预测软件”，版本为 V1.0。登记材料、界面标题、生成报告与源程序清单使用同一名称。完整源程序可通过 `python -X utf8 export_source.py` 导出。
+
+`requirements.txt` 声明兼容版本范围；`requirements-lock.txt` 固定本次验证的四项直接依赖及其必要传递依赖。Three.js 单独固定为 0.186.1，由 `tools/vendor_three.py` 获取并校验完整性。

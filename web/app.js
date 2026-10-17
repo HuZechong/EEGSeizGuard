@@ -1,4 +1,4 @@
-/* EEGSeizGuard local workspace. All dynamic content is inserted with safe DOM APIs. */
+/* 头皮脑电癫痫发作预测软件 local workspace. All dynamic content is inserted with safe DOM APIs. */
 "use strict";
 
 (() => {
@@ -113,7 +113,7 @@
     });
     byId("current-view-name").textContent = viewNames[view];
     document.body.dataset.view = view;
-    document.title = `${viewNames[view]} · EEGSeizGuard`;
+    document.title = `${viewNames[view]} · 头皮脑电癫痫发作预测软件`;
     if (updateHash && window.location.hash !== `#${view}`) {
       window.history.replaceState(null, "", `#${view}`);
     }
@@ -260,7 +260,7 @@
       const dot = node("span", `status-dot ${status}`);
       dot.setAttribute("aria-hidden", "true");
       const text = node("div");
-      text.append(node("strong", "", actionNames[job.action] || job.action || "任务"), node("small", "", `${displayDate(job.created)} · ${job.id}`));
+      text.append(node("strong", "", actionNames[job.action] || job.action || "任务"), node("small", "", `任务编号 ${job.id.slice(0, 8)}`));
       main.append(dot, text);
       const right = node("div", "job-row-right");
       const tagClass = status === "completed" ? "tag tag-green" : status === "failed" ? "tag tag-amber" : "tag";
@@ -312,7 +312,7 @@
     const excluded = metrics.excluded_unknown ?? job.result?.excluded_unknown;
     if (excluded !== undefined && excluded !== null) lines.push(`排除未知标签窗口 ${formatCount(excluded)} 个`);
     lines.push("— 表示未提供或无法计算；单类患者的 AUROC / AP 均不计算。");
-    byId("metrics-subline").textContent = lines.join("　|");
+    byId("metrics-subline").textContent = lines.join("　|　");
     const events = metrics.history?.historical_event_facts;
     const eventNote = byId("history-event-note");
     eventNote.hidden = job.action !== "history" || !events || typeof events !== "object";
@@ -454,7 +454,7 @@
     const quote = (value) => {
       let text = String(value ?? "");
       if (/^[=+@\-\t\r]/.test(text)) text = `'${text}`;
-      return `"${text.replaceAll('"', """")}"`;
+      return `"${text.replaceAll('"', '""')}"`;
     };
     const rows = [keys, ...state.metricPatients.map((patient) => keys.map((key) => key === "macro_f1" ? patient.macro_f1 ?? patient.f1 : patient[key]))];
     saveDownload("\ufeff" + rows.map((row) => row.map(quote).join(",")).join("\r\n"), `patient_metrics_${state.selectedId}.csv`, "text/csv;charset=utf-8");
@@ -563,7 +563,7 @@
     }));
   }
 
-  function renderTask() {
+  function renderTask(explicitSelection = false) {
     const job = state.jobs.find((item) => item.id === state.selectedId);
     byId("task-panel").hidden = !job;
     if (!job) return;
@@ -577,7 +577,7 @@
     byId("task-status").textContent = statusNames[status] || status;
     byId("task-status").className = status === "completed" ? "tag tag-green" : "tag";
     byId("task-status-dot").className = `status-dot ${status}`;
-    byId("task-id").textContent = `任务 ${job.id}`;
+    byId("task-id").textContent = `任务编号 ${job.id.slice(0, 8)}`;
     const origin = byId("result-origin");
     const source = resultOrigin(job);
     origin.className = `result-origin ${source === "history" ? "historical" : source === "demo" ? "demo" : ""}`;
@@ -623,7 +623,7 @@
     let sections = 0;
     navigation.querySelectorAll("[data-result]").forEach((button) => { button.hidden = byId(button.dataset.result).hidden; if (!button.hidden) sections++; });
     navigation.hidden = sections < 2;
-    window.dispatchEvent(new CustomEvent("eeg:job-selected", { detail: job }));
+    window.dispatchEvent(new CustomEvent("eeg:job-selected", { detail: { ...job, explicitSelection } }));
   }
 
   function mergeJobs(jobs) {
@@ -642,7 +642,7 @@
     state.selectedId = id;
     state.selectedSignature = "";
     renderJobs();
-    renderTask();
+    renderTask(true);
     if (scroll) byId("task-panel").scrollIntoView({ behavior: "smooth", block: "start" });
   }
 

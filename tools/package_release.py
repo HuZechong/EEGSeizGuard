@@ -12,10 +12,12 @@ def package_files():
         if not path.is_file():
             continue
         relative = path.relative_to(ROOT)
-        if any(part in {'outputs','__pycache__','.git','.pytest_cache','.codex','.agents','.aws','.venv','node_modules'} or part.startswith('tmp')
+        if any(part in {'data','research_results','test_runtime','outputs','__pycache__','.git','.pytest_cache','.codex','.agents','.aws','.venv','node_modules'} or part.startswith('tmp')
                for part in relative.parts):
             continue
-        if path.suffix.lower() in {'.py','.js','.css','.html','.txt','.json','.bat','.jpg','.png','.md'}:
+        if path.name in {'验收报告.txt','验收记录.json','真实数据一致性验证.json','架构与改进建议.txt'}:
+            continue
+        if path.suffix.lower() in {'.py','.js','.cjs','.css','.html','.txt','.json','.bat','.jpg','.png','.md'}:
             selected.append(path)
     return sorted(selected)
 
@@ -26,18 +28,18 @@ def main():
     if __version__ != '1.0.0':
         raise ValueError('用户指定的软件版本必须保持V1.0。')
     files = [p for p in package_files() if p.name != 'release_manifest.json']
-    manifest = dict(software='EEGSeizGuard',version='V1.0',
+    manifest = dict(software='头皮脑电癫痫发作预测软件',version='V1.0',
                     exclusions=['outputs','raw EEG','cache','private environment files'],
                     files={p.relative_to(ROOT).as_posix():dict(bytes=p.stat().st_size,
                          sha256=hashlib.sha256(p.read_bytes()).hexdigest()) for p in files})
     manifest_path = ROOT/'release_manifest.json'
     manifest_path.write_text(json.dumps(manifest,ensure_ascii=False,indent=2),encoding='utf-8')
     files.append(manifest_path)
-    output = ROOT.parent/'EEGSeizGuard_V1.0_可视化增强.zip'
+    output = ROOT.parent/'头皮脑电癫痫发作预测软件_V1.0_可视化增强.zip'
     pending = output.with_suffix('.partial.zip')
     with zipfile.ZipFile(pending,'w',zipfile.ZIP_DEFLATED,compresslevel=9) as archive:
         for path in files:
-            archive.write(path,'EEGSeizGuard/'+path.relative_to(ROOT).as_posix())
+            archive.write(path,'头皮脑电癫痫发作预测软件/'+path.relative_to(ROOT).as_posix())
     with zipfile.ZipFile(pending) as archive:
         bad=archive.testzip()
         if bad:

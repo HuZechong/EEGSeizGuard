@@ -1,4 +1,4 @@
-/* EEGSeizGuard V1.0 — offline scalp-connectivity explorer. */
+/* 头皮脑电癫痫发作预测软件 V1.0 — offline scalp-connectivity explorer. */
 #network-workspace{--bn-ink:#183e45;--bn-muted:#697f88;--bn-line:#dce7e9;--bn-green:#137c69;--bn-blue:#459ddf;color:var(--bn-ink);font-size:13px;min-width:0}
 #network-workspace button,#network-workspace input,#network-workspace select{font:inherit}
 #network-workspace .bn-analysis-panel,#network-workspace .bn-workbench,#network-workspace .bn-timeline,#bn-spectrum-title{scroll-margin-top:85px}

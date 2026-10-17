@@ -1,7 +1,7 @@
 """从真实时序估计头皮双极导联相干性；不推断皮层网络或发作风险。
 
 采用固定 Welch 参数与有界十秒窗口。三维坐标只是标准电极示意位置的
-中点方向投影，不能替代个体影像、源定位或电极实测位置。
+中点方向，不能替代个体影像、源定位或电极实测位置。
 """
 import csv
 import hashlib
@@ -204,7 +204,7 @@ def _demo_blocks(end_seconds, cancel):
 
 
 def _payload(frames, source):
-    return dict(schema_version=1, software_version='V1.0', source=source,
+    return dict(schema_version=1, software_version='V1.0', software_name='头皮脑电癫痫发作预测软件', source=source,
                 method=dict(name='Welch magnitude-squared coherence',
                             display_name='Welch 幅值平方相干性',
                             sampling_hz=FS, window_seconds=10, stride_seconds=10,
@@ -294,7 +294,7 @@ def run_connectivity(params, out, log, cancel):
     log('保存网络矩阵、逐帧连接和处理说明', 90)
     write_json(out / 'network.json', network)
     _write_edges(out / 'network_edges.csv', network, cancel)
-    lines = ['EEGSeizGuard V1.0 — 头皮导联相干性网络',
+    lines = ['头皮脑电癫痫发作预测软件 V1.0 — 头皮导联相干性网络',
              '数据来源：' + network['source']['label'],
              f'分析区间：[{start}, {start + duration}) 秒；{duration // 10} 个连续10秒窗口。',
              '流程：' + ' → '.join(network['method']['steps']),

@@ -28,7 +28,7 @@ def main():
     (out / 'README.txt').write_text(
         f'Three.js {VERSION}, MIT license. Official package: {URL}\n'
         'Only local import path in OrbitControls.js was modified.\n'
-        'Not part of EEGSeizGuard original source-program export.\n', encoding='utf-8')
+        'Not part of 头皮脑电癫痫发作预测软件 original source-program export.\n', encoding='utf-8')
     print(f'Vendored Three.js {VERSION}: {out}')
 
 if __name__ == '__main__':
